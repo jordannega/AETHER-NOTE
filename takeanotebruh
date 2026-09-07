@@ -1,0 +1,2307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AETHER // GOD TIER - Cinematic Knowledge System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Fira+Code:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    
+    <style>
+        /* ============================================================
+           ROOT VARIABLES & THEME SYSTEM
+           ============================================================ */
+        :root {
+            --bg-base: #05070a;
+            --bg-surface: rgba(13, 17, 23, 0.85);
+            --bg-card: rgba(22, 27, 34, 0.6);
+            --bg-card-hover: rgba(30, 38, 48, 0.8);
+            --bg-modal: rgba(3, 5, 8, 0.92);
+            
+            --border-glow: rgba(0, 242, 254, 0.25);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-active: rgba(0, 242, 254, 0.6);
+            
+            --neon-cyan: #00f2fe;
+            --neon-blue: #4facfe;
+            --neon-purple: #7f00ff;
+            --neon-pink: #ff6b9d;
+            --neon-amber: #ffb199;
+            --neon-green: #00ff88;
+            
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --text-muted: #484f58;
+            --text-inverse: #0a0d12;
+            
+            --font-cinzel: 'Cinzel', serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+            --font-mono: 'Fira Code', monospace;
+            
+            --sidebar-width: 340px;
+            --sidebar-collapsed: 80px;
+            --transition-smooth: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            --transition-bounce: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            
+            --shadow-glow: 0 0 30px rgba(0, 242, 254, 0.1);
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.4);
+            
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+        }
+
+        /* Theme Variants */
+        [data-theme="dark-minimal"] {
+            --bg-base: #080b0f;
+            --neon-cyan: #4facfe;
+            --border-glow: rgba(79, 172, 254, 0.15);
+            --shadow-glow: 0 0 30px rgba(79, 172, 254, 0.05);
+        }
+
+        [data-theme="amber"] {
+            --bg-base: #0d0804;
+            --neon-cyan: #ffb199;
+            --neon-purple: #ff6b35;
+            --border-glow: rgba(255, 177, 153, 0.2);
+            --shadow-glow: 0 0 30px rgba(255, 177, 153, 0.08);
+        }
+
+        /* ============================================================
+           RESET & BASE
+           ============================================================ */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            scrollbar-width: thin;
+            scrollbar-color: var(--neon-cyan) var(--bg-base);
+        }
+
+        *::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        *::-webkit-scrollbar-track {
+            background: var(--bg-base);
+        }
+        *::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--neon-cyan), var(--neon-purple));
+            border-radius: 10px;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            position: relative;
+        }
+
+        /* ============================================================
+           AMBIENT EFFECTS
+           ============================================================ */
+        .cyber-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: 
+                linear-gradient(to right, rgba(255,255,255,0.015) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .ambient-glow {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(140px);
+            opacity: 0.12;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatGlow 20s ease-in-out infinite alternate;
+        }
+        .glow-1 { top: -200px; left: -100px; background: radial-gradient(circle, var(--neon-cyan), var(--neon-purple)); }
+        .glow-2 { bottom: -200px; right: -100px; background: radial-gradient(circle, var(--neon-purple), var(--neon-blue)); animation-delay: -10s; }
+        .glow-3 { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; height: 400px; background: radial-gradient(circle, var(--neon-pink), transparent); animation-delay: -5s; opacity: 0.05; }
+
+        @keyframes floatGlow {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(80px, 50px) scale(1.1); }
+            100% { transform: translate(-40px, 80px) scale(0.9); }
+        }
+
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                transparent 0px,
+                transparent 3px,
+                rgba(0,0,0,0.03) 3px,
+                rgba(0,0,0,0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0.5;
+        }
+
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* ============================================================
+           APP LAYOUT
+           ============================================================ */
+        .app-wrapper {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            z-index: 2;
+            position: relative;
+        }
+
+        /* ============================================================
+           SIDEBAR
+           ============================================================ */
+        .sidebar {
+            width: var(--sidebar-width);
+            min-width: var(--sidebar-width);
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border-subtle);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 16px;
+            gap: 16px;
+            transition: var(--transition-smooth);
+            position: relative;
+            z-index: 10;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed);
+            min-width: var(--sidebar-collapsed);
+        }
+        .sidebar.collapsed .brand-logo span,
+        .sidebar.collapsed .action-btn-main span,
+        .sidebar.collapsed .search-box,
+        .sidebar.collapsed .folder-filter-bar,
+        .sidebar.collapsed .note-card-snippet,
+        .sidebar.collapsed .note-card-meta,
+        .sidebar.collapsed .note-card-title {
+            display: none;
+        }
+        .sidebar.collapsed .note-card {
+            padding: 10px;
+            min-height: 20px;
+        }
+        .sidebar.collapsed .action-btn-main {
+            padding: 12px;
+            justify-content: center;
+        }
+        .sidebar.collapsed .brand-logo {
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-toggle {
+            position: absolute;
+            right: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 48px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 0 8px 8px 0;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-smooth);
+            z-index: 20;
+        }
+        .sidebar-toggle:hover {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            background: rgba(0, 242, 254, 0.05);
+        }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .brand-logo {
+            font-family: var(--font-cinzel);
+            font-weight: 900;
+            font-size: 1.4rem;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, #fff 0%, var(--neon-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .brand-logo i {
+            color: var(--neon-cyan);
+            font-size: 1.1rem;
+            -webkit-text-fill-color: initial;
+            text-shadow: 0 0 20px var(--neon-cyan);
+        }
+
+        .theme-toggle-btn {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .theme-toggle-btn:hover {
+            color: var(--neon-cyan);
+            border-color: var(--neon-cyan);
+        }
+
+        /* Buttons */
+        .action-btn-main {
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.12), rgba(127, 0, 255, 0.12));
+            border: 1px solid var(--neon-cyan);
+            color: var(--text-primary);
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: var(--transition-smooth);
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.05);
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .action-btn-main:hover {
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.25), rgba(127, 0, 255, 0.25));
+            box-shadow: 0 0 35px rgba(0, 242, 254, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .search-box {
+            position: relative;
+        }
+        .search-input {
+            width: 100%;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border-subtle);
+            padding: 10px 14px 10px 38px;
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            outline: none;
+            transition: var(--transition-smooth);
+            font-family: var(--font-body);
+        }
+        .search-input:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.1);
+        }
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        /* Category Filters */
+        .folder-filter-bar {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            flex-wrap: nowrap;
+        }
+        .filter-chip {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition-smooth);
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .filter-chip.active,
+        .filter-chip:hover {
+            background: rgba(0, 242, 254, 0.08);
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.05);
+        }
+
+        /* Tag Cloud */
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: 4px 0;
+            max-height: 60px;
+            overflow-y: auto;
+        }
+        .tag-chip {
+            font-size: 0.6rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: rgba(0, 242, 254, 0.05);
+            border: 1px solid rgba(0, 242, 254, 0.1);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            font-family: var(--font-mono);
+            text-transform: lowercase;
+        }
+        .tag-chip:hover {
+            background: rgba(0, 242, 254, 0.15);
+            color: var(--neon-cyan);
+            border-color: var(--neon-cyan);
+        }
+
+        /* Notes List */
+        .notes-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-right: 4px;
+        }
+
+        .note-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+            min-height: 54px;
+        }
+        .note-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: transparent;
+            transition: var(--transition-smooth);
+        }
+        .note-card:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(255,255,255,0.12);
+            transform: translateX(4px);
+        }
+        .note-card.active {
+            background: rgba(0, 242, 254, 0.04);
+            border-color: var(--border-glow);
+        }
+        .note-card.active::before {
+            background: var(--neon-cyan);
+            box-shadow: 0 0 15px var(--neon-cyan);
+        }
+        .note-card-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .note-card-snippet {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+        .note-card-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
+        .note-tag-badge {
+            font-size: 0.6rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.04);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-subtle);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ============================================================
+           EDITOR
+           ============================================================ */
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(8, 11, 16, 0.5);
+            backdrop-filter: blur(10px);
+            position: relative;
+            min-width: 0;
+        }
+
+        .editor-topbar {
+            height: 60px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            background: rgba(13, 17, 23, 0.3);
+            flex-shrink: 0;
+            gap: 12px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--neon-cyan);
+            box-shadow: 0 0 15px var(--neon-cyan);
+            animation: pulse 2s infinite;
+        }
+        .pulse-dot.saving {
+            animation: pulse 0.5s infinite;
+            background-color: var(--neon-amber);
+            box-shadow: 0 0 20px var(--neon-amber);
+        }
+        .pulse-dot.error {
+            animation: pulse 0.3s infinite;
+            background-color: #ff4757;
+            box-shadow: 0 0 20px #ff4757;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0.4; transform: scale(0.8); }
+        }
+
+        .editor-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            width: 34px;
+            height: 34px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+        .icon-btn:hover {
+            color: var(--neon-cyan);
+            border-color: var(--neon-cyan);
+            background: rgba(0, 242, 254, 0.06);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.1);
+        }
+        .icon-btn .tooltip {
+            position: absolute;
+            bottom: -28px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.8);
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition-smooth);
+        }
+        .icon-btn:hover .tooltip {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
+
+        .shortcut-hint {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            margin-left: 4px;
+        }
+
+        /* Editor Body */
+        .editor-body {
+            flex: 1;
+            padding: 24px 40px;
+            overflow-y: auto;
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .note-meta-inputs {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .category-select,
+        .tag-input-field {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border-subtle);
+            color: var(--neon-cyan);
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            padding: 6px 12px;
+            border-radius: 4px;
+            outline: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: var(--transition-smooth);
+        }
+        .category-select:focus,
+        .tag-input-field:focus {
+            border-color: var(--neon-cyan);
+        }
+        .tag-input-field {
+            flex: 1;
+            min-width: 120px;
+            text-transform: none;
+            color: var(--text-secondary);
+        }
+
+        .title-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-family: var(--font-cinzel);
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 0.5px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid transparent;
+            transition: var(--transition-smooth);
+        }
+        .title-input:focus {
+            border-bottom-color: var(--neon-cyan);
+        }
+        .title-input::placeholder {
+            color: rgba(255,255,255,0.15);
+        }
+
+        /* Formatting Toolbar */
+        .formatting-toolbar {
+            display: flex;
+            gap: 4px;
+            padding: 6px 10px;
+            background: rgba(18, 24, 33, 0.7);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            align-items: center;
+            flex-wrap: wrap;
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .tool-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+        .tool-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255,255,255,0.06);
+        }
+        .tool-btn.active {
+            color: var(--neon-cyan);
+            background: rgba(0, 242, 254, 0.08);
+        }
+        .tool-divider {
+            width: 1px;
+            height: 20px;
+            background: var(--border-subtle);
+            margin: 0 4px;
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            outline: none;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: #d1d5db;
+            min-height: 300px;
+            padding: 4px 0;
+        }
+        .content-area:empty::before {
+            content: 'Begin your neural log...';
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+        .content-area p { margin-bottom: 1.2em; }
+        .content-area h1, .content-area h2, .content-area h3 {
+            color: var(--text-primary);
+            font-family: var(--font-cinzel);
+            margin: 1.5em 0 0.5em 0;
+            letter-spacing: 0.5px;
+        }
+        .content-area h2 {
+            font-size: 1.3rem;
+            border-left: 3px solid var(--neon-cyan);
+            padding-left: 14px;
+            color: #fff;
+        }
+        .content-area h3 {
+            font-size: 1.1rem;
+            color: var(--neon-cyan);
+        }
+        .content-area blockquote {
+            border-left: 3px solid var(--neon-purple);
+            background: rgba(127, 0, 255, 0.04);
+            padding: 12px 20px;
+            margin: 1.2em 0;
+            font-style: italic;
+            color: #c084fc;
+            border-radius: 0 8px 8px 0;
+        }
+        .content-area pre {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--border-subtle);
+            padding: 16px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--neon-cyan);
+            overflow-x: auto;
+            margin: 1.2em 0;
+        }
+        .content-area code {
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--neon-cyan);
+        }
+        .content-area ul, .content-area ol {
+            padding-left: 24px;
+            margin-bottom: 1.2em;
+        }
+        .content-area li { margin-bottom: 6px; }
+        .content-area a {
+            color: var(--neon-cyan);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--neon-cyan);
+        }
+        .content-area a:hover { opacity: 0.7; }
+
+        /* ============================================================
+           HUD STATS
+           ============================================================ */
+        .hud-stats {
+            position: absolute;
+            bottom: 16px;
+            right: 24px;
+            background: rgba(13, 17, 23, 0.85);
+            border: 1px solid var(--border-subtle);
+            backdrop-filter: blur(12px);
+            padding: 6px 16px;
+            border-radius: 20px;
+            display: flex;
+            gap: 16px;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            box-shadow: var(--shadow-card);
+            pointer-events: none;
+            z-index: 5;
+        }
+        .hud-stat-item span {
+            color: var(--neon-cyan);
+            font-weight: 600;
+        }
+
+        /* ============================================================
+           MODAL
+           ============================================================ */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: var(--bg-modal);
+            backdrop-filter: blur(12px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition-smooth);
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .cyber-modal {
+            background: var(--bg-surface);
+            border: 1px solid var(--neon-cyan);
+            box-shadow: 0 0 50px rgba(0, 242, 254, 0.1);
+            width: 460px;
+            max-width: 90vw;
+            padding: 32px;
+            border-radius: var(--radius-lg);
+            transform: scale(0.9) translateY(20px);
+            transition: var(--transition-bounce);
+        }
+        .modal-overlay.active .cyber-modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-title {
+            font-family: var(--font-cinzel);
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .modal-title i { color: var(--neon-cyan); }
+        .modal-body {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            padding: 8px 20px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            transition: var(--transition-smooth);
+        }
+        .btn-secondary:hover {
+            border-color: var(--text-secondary);
+        }
+        .btn-danger {
+            background: rgba(255, 71, 87, 0.15);
+            border: 1px solid #ff4757;
+            color: #ff4757;
+            padding: 8px 20px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            transition: var(--transition-smooth);
+        }
+        .btn-danger:hover {
+            background: #ff4757;
+            color: #fff;
+            box-shadow: 0 0 25px rgba(255, 71, 87, 0.3);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
+            border: none;
+            color: var(--text-inverse);
+            padding: 8px 20px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: var(--transition-smooth);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.3);
+        }
+
+        /* ============================================================
+           COMMAND PALETTE
+           ============================================================ */
+        .command-palette {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.95);
+            width: 600px;
+            max-width: 90vw;
+            max-height: 60vh;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glow);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            backdrop-filter: blur(20px);
+            z-index: 3000;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition-smooth);
+            overflow: hidden;
+        }
+        .command-palette.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) scale(1);
+        }
+        .command-palette input {
+            width: 100%;
+            padding: 16px 20px;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: var(--font-body);
+            outline: none;
+        }
+        .command-palette input::placeholder {
+            color: var(--text-muted);
+        }
+        .command-results {
+            overflow-y: auto;
+            max-height: calc(60vh - 60px);
+            padding: 8px;
+        }
+        .command-item {
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-secondary);
+            transition: var(--transition-smooth);
+        }
+        .command-item:hover,
+        .command-item.selected {
+            background: rgba(0, 242, 254, 0.06);
+            color: var(--text-primary);
+        }
+        .command-item i {
+            width: 20px;
+            color: var(--neon-cyan);
+        }
+        .command-item .shortcut {
+            margin-left: auto;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+        @media (max-width: 900px) {
+            .sidebar {
+                width: var(--sidebar-collapsed);
+                min-width: var(--sidebar-collapsed);
+                padding: 16px 10px;
+            }
+            .sidebar .brand-logo span,
+            .sidebar .action-btn-main span,
+            .sidebar .search-box,
+            .sidebar .folder-filter-bar,
+            .sidebar .note-card-snippet,
+            .sidebar .note-card-meta,
+            .sidebar .note-card-title {
+                display: none;
+            }
+            .sidebar .action-btn-main {
+                padding: 12px;
+                justify-content: center;
+            }
+            .sidebar .brand-logo {
+                justify-content: center;
+                font-size: 1.2rem;
+            }
+            .sidebar .note-card {
+                padding: 10px;
+                min-height: 20px;
+            }
+            .editor-body {
+                padding: 16px 20px;
+            }
+            .hud-stats {
+                display: none;
+            }
+            .formatting-toolbar {
+                gap: 2px;
+                padding: 4px 6px;
+            }
+            .tool-btn {
+                width: 26px;
+                height: 26px;
+                font-size: 0.7rem;
+            }
+            .title-input {
+                font-size: 1.4rem;
+            }
+            .note-meta-inputs {
+                gap: 8px;
+            }
+            .command-palette {
+                top: 40px;
+                width: 95vw;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .editor-topbar {
+                padding: 0 12px;
+                height: 50px;
+            }
+            .status-indicator span {
+                font-size: 0.6rem;
+            }
+            .editor-body {
+                padding: 12px 14px;
+            }
+            .content-area {
+                font-size: 0.95rem;
+                line-height: 1.6;
+            }
+            .sidebar-toggle {
+                display: none;
+            }
+        }
+
+        /* ============================================================
+           LOADING SKELETON
+           ============================================================ */
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-card-hover) 50%, var(--bg-card) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: var(--radius-sm);
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* ============================================================
+           TOAST NOTIFICATIONS
+           ============================================================ */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+            pointer-events: none;
+        }
+        .toast {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glow);
+            padding: 10px 24px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            box-shadow: var(--shadow-card);
+            backdrop-filter: blur(12px);
+            animation: toastIn 0.3s ease-out;
+            pointer-events: auto;
+        }
+        .toast.success { border-color: var(--neon-green); color: var(--neon-green); }
+        .toast.error { border-color: #ff4757; color: #ff4757; }
+        .toast.info { border-color: var(--neon-cyan); color: var(--neon-cyan); }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+         AMBIENT LAYERS
+         ============================================================ -->
+    <div class="cyber-grid"></div>
+    <div class="vignette"></div>
+    <div class="scanline"></div>
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+    <div class="ambient-glow glow-3"></div>
+
+    <!-- ============================================================
+         COMMAND PALETTE
+         ============================================================ -->
+    <div class="command-palette" id="commandPalette">
+        <input type="text" id="commandInput" placeholder="🔮 Search commands & notes..." autofocus>
+        <div class="command-results" id="commandResults"></div>
+    </div>
+
+    <!-- ============================================================
+         TOAST CONTAINER
+         ============================================================ -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ============================================================
+         APP WRAPPER
+         ============================================================ -->
+    <div class="app-wrapper">
+
+        <!-- ============================================================
+             SIDEBAR
+             ============================================================ -->
+        <aside class="sidebar" id="sidebar">
+            <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <div class="brand-header">
+                <div class="brand-logo" id="brandLogo">
+                    <i class="fa-solid fa-microchip"></i>
+                    <span>AETHER</span>
+                </div>
+                <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+
+            <button class="action-btn-main" id="newNoteBtn">
+                <i class="fa-solid fa-plus"></i>
+                <span>Initialize Note</span>
+                <span class="shortcut-hint">⌘N</span>
+            </button>
+
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search neural archives...">
+                <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:0.6rem;color:var(--text-muted);font-family:var(--font-mono);">⌘F</span>
+            </div>
+
+            <div class="folder-filter-bar" id="categoryFilters">
+                <span class="filter-chip active" data-category="ALL">ALL</span>
+                <span class="filter-chip" data-category="CYBERSEC">CYBERSEC</span>
+                <span class="filter-chip" data-category="DEV">DEV</span>
+                <span class="filter-chip" data-category="RESEARCH">RESEARCH</span>
+                <span class="filter-chip" data-category="GENERAL">GENERAL</span>
+            </div>
+
+            <div class="tag-cloud" id="tagCloud"></div>
+
+            <div class="notes-list" id="notesList"></div>
+        </aside>
+
+        <!-- ============================================================
+             EDITOR
+             ============================================================ -->
+        <main class="editor-container" id="editorContainer">
+            <header class="editor-topbar">
+                <div class="status-indicator">
+                    <div class="pulse-dot" id="statusDot"></div>
+                    <span id="saveStatus">SYSTEM READY</span>
+                </div>
+
+                <div class="editor-actions">
+                    <button class="icon-btn" id="focusModeBtn" title="Focus Mode">
+                        <i class="fa-solid fa-expand"></i>
+                        <span class="tooltip">Focus Mode</span>
+                    </button>
+                    <button class="icon-btn" id="exportBtn" title="Export Note">
+                        <i class="fa-solid fa-download"></i>
+                        <span class="tooltip">Export (⌘E)</span>
+                    </button>
+                    <button class="icon-btn" id="deleteNoteBtn" title="Delete Note">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span class="tooltip">Delete (⌘⌫)</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="editor-body" id="editorBody">
+                <div class="note-meta-inputs">
+                    <select class="category-select" id="noteCategory">
+                        <option value="CYBERSEC">CYBERSEC</option>
+                        <option value="DEV">DEV</option>
+                        <option value="RESEARCH">RESEARCH</option>
+                        <option value="GENERAL">GENERAL</option>
+                    </select>
+                    <input type="text" class="tag-input-field" id="noteTags" placeholder="Tags (comma separated)">
+                </div>
+
+                <input type="text" class="title-input" id="noteTitle" placeholder="Record Objective / Title...">
+
+                <div class="formatting-toolbar" id="formattingToolbar">
+                    <button class="tool-btn" data-command="bold" title="Bold"><i class="fa-solid fa-bold"></i></button>
+                    <button class="tool-btn" data-command="italic" title="Italic"><i class="fa-solid fa-italic"></i></button>
+                    <button class="tool-btn" data-command="underline" title="Underline"><i class="fa-solid fa-underline"></i></button>
+                    <button class="tool-btn" data-command="strikeThrough" title="Strikethrough"><i class="fa-solid fa-strikethrough"></i></button>
+                    <div class="tool-divider"></div>
+                    <button class="tool-btn" data-command="formatBlock" data-value="H2" title="Section Header"><i class="fa-solid fa-heading"></i></button>
+                    <button class="tool-btn" data-command="formatBlock" data-value="BLOCKQUOTE" title="Quote Block"><i class="fa-solid fa-quote-right"></i></button>
+                    <button class="tool-btn" data-command="formatBlock" data-value="PRE" title="Code Block"><i class="fa-solid fa-code"></i></button>
+                    <div class="tool-divider"></div>
+                    <button class="tool-btn" data-command="insertUnorderedList" title="Bullet List"><i class="fa-solid fa-list-ul"></i></button>
+                    <button class="tool-btn" data-command="insertOrderedList" title="Numbered List"><i class="fa-solid fa-list-ol"></i></button>
+                    <div class="tool-divider"></div>
+                    <button class="tool-btn" data-command="createLink" title="Insert Link"><i class="fa-solid fa-link"></i></button>
+                    <button class="tool-btn" data-command="removeFormat" title="Clear Formatting"><i class="fa-solid fa-eraser"></i></button>
+                </div>
+
+                <div class="content-area" id="noteBody" contenteditable="true" spellcheck="true"></div>
+            </div>
+
+            <div class="hud-stats">
+                <div class="hud-stat-item">WORDS: <span id="wordCount">0</span></div>
+                <div class="hud-stat-item">CHARS: <span id="charCount">0</span></div>
+                <div class="hud-stat-item">ID: <span id="activeNoteId">#0000</span></div>
+                <div class="hud-stat-item">V: <span id="versionCount">1</span></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ============================================================
+         DELETE MODAL
+         ============================================================ -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="cyber-modal">
+            <div class="modal-title">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>PURGE PROTOCOL</span>
+            </div>
+            <div class="modal-body">
+                Are you sure you wish to permanently purge this neural archive node? This operation cannot be reversed.
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="cancelDeleteBtn">CANCEL</button>
+                <button class="btn-danger" id="confirmDeleteBtn">PURGE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         SCRIPTS
+         ============================================================ -->
+    <script>
+        // ============================================================
+        // GOD TIER AETHER ENGINE
+        // ============================================================
+
+        (function() {
+            'use strict';
+
+            // ------------------------------------------------------------
+            // CONFIGURATION
+            // ------------------------------------------------------------
+            const STORAGE_KEY = 'AETHER_GODTIER_DATA_V2';
+            const MAX_VERSIONS = 20;
+            const AUTO_SAVE_DELAY = 600;
+            const DEBOUNCE_DELAY = 100;
+
+            // ------------------------------------------------------------
+            // STATE
+            // ------------------------------------------------------------
+            let state = {
+                notes: [],
+                currentId: null,
+                filter: 'ALL',
+                search: '',
+                theme: 'cyber',
+                isSidebarCollapsed: false,
+                isFocusMode: false,
+                isCommandPaletteOpen: false,
+                undoStack: [],
+                redoStack: [],
+                saveTimer: null,
+                versionMap: {}
+            };
+
+            // ------------------------------------------------------------
+            // DOM REFS
+            // ------------------------------------------------------------
+            const $ = (sel) => document.querySelector(sel);
+            const $$ = (sel) => document.querySelectorAll(sel);
+
+            const DOM = {
+                sidebar: $('#sidebar'),
+                sidebarToggle: $('#sidebarToggle'),
+                brandLogo: $('#brandLogo'),
+                themeToggle: $('#themeToggle'),
+                newNoteBtn: $('#newNoteBtn'),
+                searchInput: $('#searchInput'),
+                categoryFilters: $('#categoryFilters'),
+                tagCloud: $('#tagCloud'),
+                notesList: $('#notesList'),
+                noteTitle: $('#noteTitle'),
+                noteCategory: $('#noteCategory'),
+                noteTags: $('#noteTags'),
+                noteBody: $('#noteBody'),
+                saveStatus: $('#saveStatus'),
+                statusDot: $('#statusDot'),
+                wordCount: $('#wordCount'),
+                charCount: $('#charCount'),
+                activeNoteId: $('#activeNoteId'),
+                versionCount: $('#versionCount'),
+                deleteModal: $('#deleteModal'),
+                cancelDeleteBtn: $('#cancelDeleteBtn'),
+                confirmDeleteBtn: $('#confirmDeleteBtn'),
+                deleteNoteBtn: $('#deleteNoteBtn'),
+                exportBtn: $('#exportBtn'),
+                focusModeBtn: $('#focusModeBtn'),
+                editorBody: $('#editorBody'),
+                commandPalette: $('#commandPalette'),
+                commandInput: $('#commandInput'),
+                commandResults: $('#commandResults'),
+                toastContainer: $('#toastContainer'),
+                formattingToolbar: $('#formattingToolbar'),
+            };
+
+            // ------------------------------------------------------------
+            // INITIALIZATION
+            // ------------------------------------------------------------
+            function init() {
+                loadState();
+                
+                if (state.notes.length === 0) {
+                    createSampleNotes();
+                }
+                
+                if (!state.currentId && state.notes.length > 0) {
+                    state.currentId = state.notes[0].id;
+                }
+
+                renderNotesList();
+                loadActiveNote();
+                renderTagCloud();
+                applyTheme();
+                setupEventListeners();
+                setupFormattingToolbar();
+                setupKeyboardShortcuts();
+                setupCommandPalette();
+                updateHUD();
+
+                // Set initial sidebar state
+                if (state.isSidebarCollapsed) {
+                    DOM.sidebar.classList.add('collapsed');
+                }
+
+                console.log('⚡ AETHER GOD TIER initialized');
+                toast('System online', 'success');
+            }
+
+            // ------------------------------------------------------------
+            // SAMPLE DATA
+            // ------------------------------------------------------------
+            function createSampleNotes() {
+                state.notes = [
+                    {
+                        id: 'note-101',
+                        title: 'Active Directory Security Auditing & Kerberoasting',
+                        category: 'CYBERSEC',
+                        tags: 'AD, Kerberos, Pentest',
+                        content: `<h2>Threat Overview</h2>
+                        <p>Kerberoasting targets Service Principal Names (SPNs) in Active Directory. Any authenticated user can request a Kerberos TGS ticket for an SPN service account and crack the hash offline.</p>
+                        <h2>Detection Vectors</h2>
+                        <p>Monitor Event ID 4769 (A Kerberos service ticket was requested). Filter specifically for ticket options matching encryption type 0x17 (RC4-HMAC).</p>
+                        <pre><code># Mitigation Policy Config
+        Set-ADAccountPassword -Identity "sql_svc" -Reset</code></pre>
+                        <blockquote>Ensure service account passwords exceed 25 characters to resist offline dictionary attacks.</blockquote>`,
+                        updatedAt: new Date().toISOString(),
+                        version: 1
+                    },
+                    {
+                        id: 'note-102',
+                        title: 'Tactical Chess Mastery: Rapid System Strategy',
+                        category: 'RESEARCH',
+                        tags: 'Chess, Tactics, Lichess',
+                        content: `<h2>Target: Progressing to 1800+ Rating</h2>
+                        <p>Focus on tactical pattern recognition and middle-game positional awareness.</p>
+                        <ul>
+                            <li>Daily 20-minute puzzle storm on Lichess</li>
+                            <li>Study Queen's Gambit & King's Indian Defense setups</li>
+                            <li>Minimize blunders by verifying engine tactical lines post-match</li>
+                        </ul>
+                        <p>Key insight: <strong>Positional sacrifices</strong> often create more winning chances than material preservation at this level.</p>`,
+                        updatedAt: new Date(Date.now() - 86400000).toISOString(),
+                        version: 1
+                    },
+                    {
+                        id: 'note-103',
+                        title: 'Neural Architecture: Transformer Models',
+                        category: 'DEV',
+                        tags: 'AI, Transformers, LLM',
+                        content: `<h2>Attention Mechanism Deep Dive</h2>
+                        <p>The self-attention mechanism allows the model to weigh the importance of different words in the input sequence. Key formula:</p>
+                        <pre><code>Attention(Q,K,V) = softmax(QK^T / √d_k) V</code></pre>
+                        <h3>Multi-Head Attention</h3>
+                        <p>Multiple attention heads run in parallel, allowing the model to focus on different aspects of the input simultaneously.</p>
+                        <ul>
+                            <li>8 heads in base Transformer</li>
+                            <li>Each head has dimension d_k = d_model / h</li>
+                            <li>Outputs are concatenated and projected</li>
+                        </ul>`,
+                        updatedAt: new Date(Date.now() - 172800000).toISOString(),
+                        version: 1
+                    }
+                ];
+                state.currentId = state.notes[0].id;
+                saveState();
+            }
+
+            // ------------------------------------------------------------
+            // STATE PERSISTENCE
+            // ------------------------------------------------------------
+            function loadState() {
+                try {
+                    const saved = localStorage.getItem(STORAGE_KEY);
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        state.notes = parsed.notes || [];
+                        state.currentId = parsed.currentId || null;
+                        state.filter = parsed.filter || 'ALL';
+                        state.theme = parsed.theme || 'cyber';
+                        state.isSidebarCollapsed = parsed.isSidebarCollapsed || false;
+                        state.versionMap = parsed.versionMap || {};
+                        
+                        // Ensure all notes have version property
+                        state.notes.forEach(n => {
+                            if (!n.version) n.version = 1;
+                        });
+                    }
+                } catch (e) {
+                    console.warn('Failed to load state:', e);
+                }
+            }
+
+            function saveState() {
+                try {
+                    const data = {
+                        notes: state.notes,
+                        currentId: state.currentId,
+                        filter: state.filter,
+                        theme: state.theme,
+                        isSidebarCollapsed: state.isSidebarCollapsed,
+                        versionMap: state.versionMap
+                    };
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                } catch (e) {
+                    console.warn('Failed to save state:', e);
+                }
+            }
+
+            // ------------------------------------------------------------
+            // NOTE CRUD
+            // ------------------------------------------------------------
+            function getCurrentNote() {
+                return state.notes.find(n => n.id === state.currentId);
+            }
+
+            function getNoteIndex(id) {
+                return state.notes.findIndex(n => n.id === id);
+            }
+
+            function createNewNote() {
+                const newId = 'note-' + Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 4);
+                const newNote = {
+                    id: newId,
+                    title: 'Untitled Neural Node',
+                    category: 'GENERAL',
+                    tags: '',
+                    content: '<p>Begin your neural log...</p>',
+                    updatedAt: new Date().toISOString(),
+                    version: 1
+                };
+
+                state.notes.unshift(newNote);
+                state.currentId = newId;
+                saveState();
+                renderNotesList();
+                loadActiveNote();
+                renderTagCloud();
+                updateHUD();
+                toast('New note initialized', 'success');
+                focusEditor();
+            }
+
+            function saveCurrentNote() {
+                const note = getCurrentNote();
+                if (!note) return;
+
+                const title = DOM.noteTitle.value.trim() || 'Untitled Neural Node';
+                const content = DOM.noteBody.innerHTML;
+
+                // Check if content actually changed
+                if (note.title === title && note.content === content && note.category === DOM.noteCategory.value && note.tags === DOM.noteTags.value) {
+                    return; // No change
+                }
+
+                // Save version history
+                if (!state.versionMap[note.id]) {
+                    state.versionMap[note.id] = [];
+                }
+                
+                // Only save version if content changed significantly
+                if (note.content !== content) {
+                    state.versionMap[note.id].push({
+                        content: note.content,
+                        title: note.title,
+                        timestamp: note.updatedAt
+                    });
+                    
+                    // Trim versions
+                    if (state.versionMap[note.id].length > MAX_VERSIONS) {
+                        state.versionMap[note.id] = state.versionMap[note.id].slice(-MAX_VERSIONS);
+                    }
+                    
+                    note.version = (note.version || 1) + 1;
+                }
+
+                note.title = title;
+                note.category = DOM.noteCategory.value;
+                note.tags = DOM.noteTags.value;
+                note.content = content;
+                note.updatedAt = new Date().toISOString();
+
+                saveState();
+                renderNotesList();
+                renderTagCloud();
+                updateHUD();
+                updateStatus('SYNCHRONIZED', '');
+            }
+
+            function deleteCurrentNote() {
+                const note = getCurrentNote();
+                if (!note) return;
+
+                state.notes = state.notes.filter(n => n.id !== state.currentId);
+                
+                if (state.notes.length > 0) {
+                    state.currentId = state.notes[0].id;
+                } else {
+                    createNewNote();
+                    return;
+                }
+
+                saveState();
+                renderNotesList();
+                loadActiveNote();
+                renderTagCloud();
+                updateHUD();
+                toast('Note purged', 'info');
+            }
+
+            function loadActiveNote() {
+                const note = getCurrentNote();
+                if (!note) {
+                    DOM.noteTitle.value = '';
+                    DOM.noteCategory.value = 'GENERAL';
+                    DOM.noteTags.value = '';
+                    DOM.noteBody.innerHTML = '';
+                    DOM.activeNoteId.innerText = '#----';
+                    DOM.versionCount.innerText = '0';
+                    return;
+                }
+
+                DOM.noteTitle.value = note.title;
+                DOM.noteCategory.value = note.category || 'GENERAL';
+                DOM.noteTags.value = note.tags || '';
+                DOM.noteBody.innerHTML = note.content || '<p>Begin your neural log...</p>';
+                DOM.activeNoteId.innerText = '#' + note.id.replace('note-', '').substr(0, 8);
+                DOM.versionCount.innerText = note.version || 1;
+                
+                updateHUD();
+            }
+
+            // ------------------------------------------------------------
+            // RENDER FUNCTIONS
+            // ------------------------------------------------------------
+            function renderNotesList() {
+                const searchQuery = DOM.searchInput.value.toLowerCase().trim();
+                
+                const filtered = state.notes.filter(note => {
+                    const matchesCategory = state.filter === 'ALL' || note.category === state.filter;
+                    const matchesSearch = note.title.toLowerCase().includes(searchQuery) || 
+                                         note.content.toLowerCase().includes(searchQuery) ||
+                                         (note.tags && note.tags.toLowerCase().includes(searchQuery));
+                    return matchesCategory && matchesSearch;
+                });
+
+                DOM.notesList.innerHTML = '';
+
+                if (filtered.length === 0) {
+                    DOM.notesList.innerHTML = `
+                        <div style="text-align:center;padding:40px 10px;color:var(--text-muted);font-size:0.85rem;">
+                            <i class="fa-solid fa-database" style="font-size:1.5rem;display:block;margin-bottom:10px;opacity:0.3;"></i>
+                            ${searchQuery ? 'No matches found' : 'No notes. Create one!'}
+                        </div>
+                    `;
+                    return;
+                }
+
+                filtered.forEach(note => {
+                    const card = document.createElement('div');
+                    card.className = `note-card ${note.id === state.currentId ? 'active' : ''}`;
+                    
+                    const temp = document.createElement('div');
+                    temp.innerHTML = note.content;
+                    const snippet = (temp.innerText || '').substring(0, 120) || 'No content...';
+                    
+                    const date = new Date(note.updatedAt);
+                    const dateStr = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                    
+                    card.innerHTML = `
+                        <div class="note-card-title">${escapeHtml(note.title)}</div>
+                        <div class="note-card-snippet">${escapeHtml(snippet)}</div>
+                        <div class="note-card-meta">
+                            <span>${dateStr}</span>
+                            <span class="note-tag-badge">${escapeHtml(note.category || 'GENERAL')}</span>
+                        </div>
+                    `;
+
+                    card.addEventListener('click', () => {
+                        // Save current note before switching
+                        saveCurrentNote();
+                        state.currentId = note.id;
+                        renderNotesList();
+                        loadActiveNote();
+                        updateHUD();
+                    });
+
+                    card.addEventListener('dblclick', () => {
+                        // Quick focus on editor
+                        DOM.noteBody.focus();
+                    });
+
+                    DOM.notesList.appendChild(card);
+                });
+            }
+
+            function renderTagCloud() {
+                const tagMap = {};
+                state.notes.forEach(note => {
+                    if (note.tags) {
+                        note.tags.split(',').forEach(tag => {
+                            const t = tag.trim().toLowerCase();
+                            if (t) {
+                                tagMap[t] = (tagMap[t] || 0) + 1;
+                            }
+                        });
+                    }
+                });
+
+                DOM.tagCloud.innerHTML = '';
+                const sorted = Object.entries(tagMap).sort((a, b) => b[1] - a[1]).slice(0, 15);
+                
+                sorted.forEach(([tag, count]) => {
+                    const chip = document.createElement('span');
+                    chip.className = 'tag-chip';
+                    chip.textContent = `${tag} (${count})`;
+                    chip.addEventListener('click', () => {
+                        DOM.searchInput.value = tag;
+                        renderNotesList();
+                    });
+                    DOM.tagCloud.appendChild(chip);
+                });
+            }
+
+            function updateHUD() {
+                const note = getCurrentNote();
+                if (!note) {
+                    DOM.wordCount.innerText = '0';
+                    DOM.charCount.innerText = '0';
+                    return;
+                }
+
+                const text = DOM.noteBody.innerText || '';
+                DOM.charCount.innerText = text.length;
+                const words = text.trim().split(/\s+/).filter(w => w.length > 0);
+                DOM.wordCount.innerText = text.trim() === '' ? 0 : words.length;
+            }
+
+            function updateStatus(message, icon) {
+                DOM.saveStatus.innerText = message;
+                DOM.statusDot.className = 'pulse-dot';
+                if (icon === 'saving') {
+                    DOM.statusDot.classList.add('saving');
+                } else if (icon === 'error') {
+                    DOM.statusDot.classList.add('error');
+                }
+            }
+
+            // ------------------------------------------------------------
+            // AUTO-SAVE ENGINE
+            // ------------------------------------------------------------
+            function triggerAutoSave() {
+                clearTimeout(state.saveTimer);
+                updateStatus('SAVING...', 'saving');
+                
+                state.saveTimer = setTimeout(() => {
+                    saveCurrentNote();
+                    updateStatus('SYNCHRONIZED', '');
+                }, AUTO_SAVE_DELAY);
+            }
+
+            // ------------------------------------------------------------
+            // THEME SYSTEM
+            // ------------------------------------------------------------
+            function applyTheme() {
+                document.documentElement.setAttribute('data-theme', state.theme);
+                const icon = DOM.themeToggle.querySelector('i');
+                const themeNames = {
+                    'cyber': 'moon',
+                    'dark-minimal': 'sun',
+                    'amber': 'fire'
+                };
+                icon.className = `fa-solid fa-${themeNames[state.theme] || 'moon'}`;
+            }
+
+            function cycleTheme() {
+                const themes = ['cyber', 'dark-minimal', 'amber'];
+                const idx = themes.indexOf(state.theme);
+                state.theme = themes[(idx + 1) % themes.length];
+                applyTheme();
+                saveState();
+                toast(`Theme: ${state.theme}`, 'info');
+            }
+
+            // ------------------------------------------------------------
+            // FOCUS MODE
+            // ------------------------------------------------------------
+            function toggleFocusMode() {
+                state.isFocusMode = !state.isFocusMode;
+                DOM.editorBody.style.padding = state.isFocusMode ? '40px 80px' : '';
+                DOM.editorBody.style.maxWidth = state.isFocusMode ? '800px' : '';
+                DOM.formattingToolbar.style.display = state.isFocusMode ? 'none' : '';
+                DOM.focusModeBtn.querySelector('i').className = state.isFocusMode ? 'fa-solid fa-compress' : 'fa-solid fa-expand';
+                DOM.sidebar.style.display = state.isFocusMode ? 'none' : '';
+                
+                if (state.isFocusMode) {
+                    DOM.noteBody.focus();
+                }
+            }
+
+            // ------------------------------------------------------------
+            // EXPORT
+            // ------------------------------------------------------------
+            function exportCurrentNote() {
+                const note = getCurrentNote();
+                if (!note) {
+                    toast('No note to export', 'error');
+                    return;
+                }
+
+                const html = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>${escapeHtml(note.title)}</title>
+                    <meta charset="UTF-8">
+                    <style>
+                        body { 
+                            font-family: 'Georgia', serif; 
+                            max-width: 800px; 
+                            margin: 40px auto; 
+                            padding: 20px;
+                            background: #0a0d12;
+                            color: #d1d5db;
+                            line-height: 1.8;
+                        }
+                        h1 { color: #00f2fe; border-bottom: 2px solid #00f2fe; padding-bottom: 10px; }
+                        .meta { color: #8b949e; margin-bottom: 20px; font-family: monospace; }
+                        blockquote { border-left: 3px solid #7f00ff; padding-left: 20px; color: #c084fc; }
+                        pre { background: #1a1e24; padding: 16px; border-radius: 8px; overflow-x: auto; }
+                        code { font-family: monospace; }
+                        hr { border: none; border-top: 1px solid #2a2e34; margin: 30px 0; }
+                        .footer { color: #484f58; font-size: 0.8rem; margin-top: 40px; text-align: center; }
+                    </style>
+                </head>
+                <body>
+                    <h1>${escapeHtml(note.title)}</h1>
+                    <div class="meta">
+                        <strong>Category:</strong> ${escapeHtml(note.category)} &bull; 
+                        <strong>Tags:</strong> ${escapeHtml(note.tags)} &bull;
+                        <strong>Version:</strong> ${note.version || 1} &bull;
+                        <strong>Exported:</strong> ${new Date().toLocaleString()}
+                    </div>
+                    <hr>
+                    ${note.content}
+                    <hr>
+                    <div class="footer">Exported from AETHER God Tier &bull; ${new Date().toISOString()}</div>
+                </body>
+                </html>
+                `;
+
+                const blob = new Blob([html], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${note.title.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 50)}.html`;
+                a.click();
+                URL.revokeObjectURL(url);
+                toast('Note exported', 'success');
+            }
+
+            // ------------------------------------------------------------
+            // TOAST SYSTEM
+            // ------------------------------------------------------------
+            function toast(message, type = 'info', duration = 3000) {
+                const el = document.createElement('div');
+                el.className = `toast ${type}`;
+                el.textContent = message;
+                DOM.toastContainer.appendChild(el);
+                
+                setTimeout(() => {
+                    el.style.opacity = '0';
+                    el.style.transform = 'translateY(-10px)';
+                    setTimeout(() => el.remove(), 300);
+                }, duration);
+            }
+
+            // ------------------------------------------------------------
+            // UTILITY
+            // ------------------------------------------------------------
+            function escapeHtml(str) {
+                if (!str) return '';
+                return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+            }
+
+            function focusEditor() {
+                DOM.noteBody.focus();
+                // Place cursor at end
+                const range = document.createRange();
+                range.selectNodeContents(DOM.noteBody);
+                range.collapse(false);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+
+            // ------------------------------------------------------------
+            // KEYBOARD SHORTCUTS
+            // ------------------------------------------------------------
+            function setupKeyboardShortcuts() {
+                document.addEventListener('keydown', (e) => {
+                    const ctrl = e.ctrlKey || e.metaKey;
+                    const shift = e.shiftKey;
+
+                    // Don't trigger shortcuts when typing in input fields (except specific ones)
+                    const activeTag = document.activeElement?.tagName || '';
+                    const isInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag);
+                    const isContentEditable = document.activeElement?.contentEditable === 'true';
+
+                    // Command Palette: Ctrl+K
+                    if (ctrl && e.key === 'k') {
+                        e.preventDefault();
+                        toggleCommandPalette();
+                        return;
+                    }
+
+                    // New Note: Ctrl+N
+                    if (ctrl && e.key === 'n') {
+                        e.preventDefault();
+                        createNewNote();
+                        return;
+                    }
+
+                    // Save: Ctrl+S
+                    if (ctrl && e.key === 's') {
+                        e.preventDefault();
+                        saveCurrentNote();
+                        toast('Saved manually', 'success');
+                        return;
+                    }
+
+                    // Delete: Ctrl+Delete or Ctrl+Backspace
+                    if (ctrl && (e.key === 'Delete' || e.key === 'Backspace')) {
+                        e.preventDefault();
+                        openDeleteModal();
+                        return;
+                    }
+
+                    // Export: Ctrl+E
+                    if (ctrl && e.key === 'e') {
+                        e.preventDefault();
+                        exportCurrentNote();
+                        return;
+                    }
+
+                    // Search: Ctrl+F
+                    if (ctrl && e.key === 'f') {
+                        e.preventDefault();
+                        DOM.searchInput.focus();
+                        DOM.searchInput.select();
+                        return;
+                    }
+
+                    // Focus Mode: Ctrl+Shift+F
+                    if (ctrl && shift && e.key === 'F') {
+                        e.preventDefault();
+                        toggleFocusMode();
+                        return;
+                    }
+
+                    // Escape: Close modals and command palette
+                    if (e.key === 'Escape') {
+                        if (DOM.deleteModal.classList.contains('active')) {
+                            closeDeleteModal();
+                        }
+                        if (DOM.commandPalette.classList.contains('active')) {
+                            closeCommandPalette();
+                        }
+                        return;
+                    }
+
+                    // Undo: Ctrl+Z (only in editor)
+                    if (ctrl && e.key === 'z' && !e.shiftKey && isContentEditable) {
+                        e.preventDefault();
+                        document.execCommand('undo');
+                        triggerAutoSave();
+                        return;
+                    }
+
+                    // Redo: Ctrl+Shift+Z or Ctrl+Y
+                    if ((ctrl && e.key === 'z' && shift) || (ctrl && e.key === 'y')) {
+                        e.preventDefault();
+                        document.execCommand('redo');
+                        triggerAutoSave();
+                        return;
+                    }
+
+                    // Navigation: Alt+Left/Right for previous/next note
+                    if (!isInput && !isContentEditable && e.altKey) {
+                        if (e.key === 'ArrowLeft') {
+                            e.preventDefault();
+                            navigateNote(-1);
+                        } else if (e.key === 'ArrowRight') {
+                            e.preventDefault();
+                            navigateNote(1);
+                        }
+                    }
+                });
+            }
+
+            function navigateNote(direction) {
+                const idx = state.notes.findIndex(n => n.id === state.currentId);
+                if (idx === -1) return;
+                
+                const newIdx = (idx + direction + state.notes.length) % state.notes.length;
+                state.currentId = state.notes[newIdx].id;
+                renderNotesList();
+                loadActiveNote();
+                updateHUD();
+            }
+
+            // ------------------------------------------------------------
+            // COMMAND PALETTE
+            // ------------------------------------------------------------
+            function setupCommandPalette() {
+                const commands = [
+                    { id: 'new', label: 'New Note', icon: 'fa-plus', shortcut: '⌘N', action: createNewNote },
+                    { id: 'save', label: 'Save Note', icon: 'fa-floppy-disk', shortcut: '⌘S', action: () => { saveCurrentNote(); toast('Saved', 'success'); } },
+                    { id: 'export', label: 'Export Note', icon: 'fa-download', shortcut: '⌘E', action: exportCurrentNote },
+                    { id: 'delete', label: 'Delete Note', icon: 'fa-trash', shortcut: '⌘⌫', action: openDeleteModal },
+                    { id: 'focus', label: 'Toggle Focus Mode', icon: 'fa-expand', shortcut: '⌘⇧F', action: toggleFocusMode },
+                    { id: 'theme', label: 'Cycle Theme', icon: 'fa-palette', shortcut: '', action: cycleTheme },
+                ];
+
+                DOM.commandInput.addEventListener('input', () => {
+                    const query = DOM.commandInput.value.toLowerCase().trim();
+                    const results = commands.filter(c => 
+                        c.label.toLowerCase().includes(query) || 
+                        c.id.includes(query)
+                    );
+
+                    // Add notes to results
+                    const noteResults = state.notes
+                        .filter(n => n.title.toLowerCase().includes(query))
+                        .slice(0, 5)
+                        .map(n => ({
+                            id: 'note-' + n.id,
+                            label: `📄 ${n.title}`,
+                            icon: 'fa-file-lines',
+                            shortcut: '',
+                            action: () => {
+                                state.currentId = n.id;
+                                renderNotesList();
+                                loadActiveNote();
+                                updateHUD();
+                                closeCommandPalette();
+                            }
+                        }));
+
+                    const allResults = [...results, ...noteResults];
+                    renderCommandResults(allResults);
+                });
+
+                DOM.commandInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        closeCommandPalette();
+                        return;
+                    }
+                    
+                    if (e.key === 'Enter') {
+                        const selected = DOM.commandResults.querySelector('.selected');
+                        if (selected) {
+                            const idx = parseInt(selected.dataset.index);
+                            const items = DOM.commandResults.querySelectorAll('.command-item');
+                            if (items[idx]) {
+                                const action = items[idx]._action;
+                                if (action) action();
+                                closeCommandPalette();
+                            }
+                        }
+                    }
+
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        const items = DOM.commandResults.querySelectorAll('.command-item');
+                        const current = DOM.commandResults.querySelector('.selected');
+                        let idx = current ? parseInt(current.dataset.index) : -1;
+                        idx = e.key === 'ArrowDown' ? Math.min(idx + 1, items.length - 1) : Math.max(idx - 1, 0);
+                        items.forEach((el, i) => el.classList.toggle('selected', i === idx));
+                    }
+                });
+            }
+
+            function renderCommandResults(commands) {
+                DOM.commandResults.innerHTML = '';
+                commands.forEach((cmd, i) => {
+                    const el = document.createElement('div');
+                    el.className = `command-item ${i === 0 ? 'selected' : ''}`;
+                    el.dataset.index = i;
+                    el._action = cmd.action;
+                    el.innerHTML = `
+                        <i class="fa-solid ${cmd.icon}"></i>
+                        <span>${cmd.label}</span>
+                        ${cmd.shortcut ? `<span class="shortcut">${cmd.shortcut}</span>` : ''}
+                    `;
+                    el.addEventListener('click', () => {
+                        if (cmd.action) cmd.action();
+                        closeCommandPalette();
+                    });
+                    DOM.commandResults.appendChild(el);
+                });
+            }
+
+            function toggleCommandPalette() {
+                if (DOM.commandPalette.classList.contains('active')) {
+                    closeCommandPalette();
+                } else {
+                    openCommandPalette();
+                }
+            }
+
+            function openCommandPalette() {
+                DOM.commandPalette.classList.add('active');
+                DOM.commandInput.value = '';
+                DOM.commandInput.focus();
+                renderCommandResults([]);
+                // Show default commands
+                setTimeout(() => {
+                    DOM.commandInput.dispatchEvent(new Event('input'));
+                }, 50);
+            }
+
+            function closeCommandPalette() {
+                DOM.commandPalette.classList.remove('active');
+                DOM.commandInput.blur();
+            }
+
+            // ------------------------------------------------------------
+            // FORMATTING TOOLBAR
+            // ------------------------------------------------------------
+            function setupFormattingToolbar() {
+                DOM.formattingToolbar.querySelectorAll('.tool-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const command = btn.dataset.command;
+                        const value = btn.dataset.value || null;
+
+                        if (command === 'createLink') {
+                            const url = prompt('Enter URL:', 'https://');
+                            if (url) {
+                                document.execCommand(command, false, url);
+                            }
+                        } else if (command === 'formatBlock') {
+                            if (value === 'PRE') {
+                                // Wrap in pre/code block
+                                const selection = window.getSelection();
+                                if (!selection.rangeCount) return;
+                                const range = selection.getRangeAt(0);
+                                const content = range.extractContents();
+                                const pre = document.createElement('pre');
+                                const code = document.createElement('code');
+                                code.appendChild(content);
+                                pre.appendChild(code);
+                                range.insertNode(pre);
+                            } else {
+                                document.execCommand(command, false, value);
+                            }
+                        } else {
+                            document.execCommand(command, false, value);
+                        }
+                        
+                        DOM.noteBody.focus();
+                        triggerAutoSave();
+                    });
+                });
+
+                // Track active formatting state
+                DOM.noteBody.addEventListener('mouseup', updateFormattingState);
+                DOM.noteBody.addEventListener('keyup', updateFormattingState);
+            }
+
+            function updateFormattingState() {
+                const commands = ['bold', 'italic', 'underline', 'strikeThrough'];
+                commands.forEach(cmd => {
+                    const btn = DOM.formattingToolbar.querySelector(`[data-command="${cmd}"]`);
+                    if (btn) {
+                        btn.classList.toggle('active', document.queryCommandState(cmd));
+                    }
+                });
+            }
+
+            // ------------------------------------------------------------
+            // EVENT LISTENERS
+            // ------------------------------------------------------------
+            function setupEventListeners() {
+                // Note title, category, tags changes
+                DOM.noteTitle.addEventListener('input', triggerAutoSave);
+                DOM.noteCategory.addEventListener('change', triggerAutoSave);
+                DOM.noteTags.addEventListener('input', triggerAutoSave);
+                DOM.noteBody.addEventListener('input', () => {
+                    triggerAutoSave();
+                    updateHUD();
+                });
+
+                // New note
+                DOM.newNoteBtn.addEventListener('click', createNewNote);
+
+                // Delete
+                DOM.deleteNoteBtn.addEventListener('click', openDeleteModal);
+                DOM.cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+                DOM.confirmDeleteBtn.addEventListener('click', () => {
+                    deleteCurrentNote();
+                    closeDeleteModal();
+                });
+
+                // Export
+                DOM.exportBtn.addEventListener('click', exportCurrentNote);
+
+                // Focus mode
+                DOM.focusModeBtn.addEventListener('click', toggleFocusMode);
+
+                // Theme
+                DOM.themeToggle.addEventListener('click', cycleTheme);
+
+                // Search
+                DOM.searchInput.addEventListener('input', renderNotesList);
+
+                // Category filters
+                DOM.categoryFilters.querySelectorAll('.filter-chip').forEach(chip => {
+                    chip.addEventListener('click', () => {
+                        DOM.categoryFilters.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                        chip.classList.add('active');
+                        state.filter = chip.dataset.category;
+                        renderNotesList();
+                    });
+                });
+
+                // Sidebar toggle
+                DOM.sidebarToggle.addEventListener('click', () => {
+                    state.isSidebarCollapsed = !state.isSidebarCollapsed;
+                    DOM.sidebar.classList.toggle('collapsed');
+                    DOM.sidebarToggle.querySelector('i').className = state.isSidebarCollapsed ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-left';
+                    saveState();
+                });
+
+                // Brand logo click - go to first note
+                DOM.brandLogo.addEventListener('click', () => {
+                    if (state.notes.length > 0) {
+                        state.currentId = state.notes[0].id;
+                        renderNotesList();
+                        loadActiveNote();
+                        updateHUD();
+                    }
+                });
+
+                // Delete modal keyboard support
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && DOM.deleteModal.classList.contains('active')) {
+                        closeDeleteModal();
+                    }
+                    if (e.key === 'Enter' && DOM.deleteModal.classList.contains('active')) {
+                        deleteCurrentNote();
+                        closeDeleteModal();
+                    }
+                });
+
+                // Close modals on backdrop click
+                DOM.deleteModal.addEventListener('click', (e) => {
+                    if (e.target === DOM.deleteModal) closeDeleteModal();
+                });
+
+                // Click outside command palette to close
+                document.addEventListener('click', (e) => {
+                    if (DOM.commandPalette.classList.contains('active') && 
+                        !DOM.commandPalette.contains(e.target) &&
+                        !e.target.closest('.icon-btn')) {
+                        closeCommandPalette();
+                    }
+                });
+
+                // Window before unload - save
+                window.addEventListener('beforeunload', () => {
+                    saveCurrentNote();
+                });
+
+                // Handle paste for rich content
+                DOM.noteBody.addEventListener('paste', (e) => {
+                    // Allow paste but trigger save
+                    setTimeout(triggerAutoSave, 50);
+                });
+
+                // Click on note body to focus
+                DOM.noteBody.addEventListener('click', () => {
+                    // Ensure we're focused
+                });
+            }
+
+            // ------------------------------------------------------------
+            // MODAL CONTROLS
+            // ------------------------------------------------------------
+            function openDeleteModal() {
+                DOM.deleteModal.classList.add('active');
+            }
+
+            function closeDeleteModal() {
+                DOM.deleteModal.classList.remove('active');
+            }
+
+            // ------------------------------------------------------------
+            // BOOT
+            // ------------------------------------------------------------
+            // Wait for DOM fully loaded
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+            // Expose for debugging
+            window.__AETHER = {
+                state,
+                notes: () => state.notes,
+                current: getCurrentNote,
+                create: createNewNote,
+                save: saveCurrentNote,
+                export: exportCurrentNote,
+                delete: deleteCurrentNote,
+                toast
+            };
+
+        })();
+    </script>
+</body>
+</html>
