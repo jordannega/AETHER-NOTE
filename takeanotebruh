@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AETHER // GOD TIER - Cinematic Knowledge System</title>
+    <title>AETHER // GOD TIER - Share & Collaborate</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Fira+Code:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/dark.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
     
     <style>
         /* ============================================================
@@ -32,6 +30,7 @@
             --neon-pink: #ff6b9d;
             --neon-amber: #ffb199;
             --neon-green: #00ff88;
+            --neon-orange: #ff8c42;
             
             --text-primary: #f0f6fc;
             --text-secondary: #8b949e;
@@ -211,7 +210,8 @@
         .sidebar.collapsed .folder-filter-bar,
         .sidebar.collapsed .note-card-snippet,
         .sidebar.collapsed .note-card-meta,
-        .sidebar.collapsed .note-card-title {
+        .sidebar.collapsed .note-card-title,
+        .sidebar.collapsed .tag-cloud {
             display: none;
         }
         .sidebar.collapsed .note-card {
@@ -491,6 +491,15 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+        .note-card .share-icon {
+            opacity: 0.4;
+            font-size: 0.7rem;
+            margin-left: auto;
+        }
+        .note-card.shared .share-icon {
+            opacity: 1;
+            color: var(--neon-green);
+        }
 
         /* ============================================================
            EDITOR
@@ -542,6 +551,10 @@
             animation: pulse 0.3s infinite;
             background-color: #ff4757;
             box-shadow: 0 0 20px #ff4757;
+        }
+        .pulse-dot.shared {
+            background-color: var(--neon-green);
+            box-shadow: 0 0 20px var(--neon-green);
         }
 
         @keyframes pulse {
@@ -595,6 +608,11 @@
         .icon-btn:hover .tooltip {
             opacity: 1;
             transform: translateX(-50%) scale(1);
+        }
+        .icon-btn.share-active {
+            color: var(--neon-green);
+            border-color: var(--neon-green);
+            background: rgba(0, 255, 136, 0.08);
         }
 
         .shortcut-hint {
@@ -667,6 +685,60 @@
         }
         .title-input::placeholder {
             color: rgba(255,255,255,0.15);
+        }
+
+        /* Share Bar */
+        .share-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            background: rgba(0, 255, 136, 0.04);
+            border: 1px solid rgba(0, 255, 136, 0.08);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+        }
+        .share-bar .share-link {
+            flex: 1;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border-subtle);
+            padding: 4px 10px;
+            border-radius: 4px;
+            color: var(--neon-cyan);
+            font-size: 0.7rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .share-bar .copy-btn {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            color: var(--neon-green);
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            transition: var(--transition-smooth);
+        }
+        .share-bar .copy-btn:hover {
+            background: rgba(0, 255, 136, 0.2);
+        }
+        .share-bar .unshare-btn {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            transition: var(--transition-smooth);
+        }
+        .share-bar .unshare-btn:hover {
+            background: rgba(255, 71, 87, 0.2);
         }
 
         /* Formatting Toolbar */
@@ -810,6 +882,9 @@
             color: var(--neon-cyan);
             font-weight: 600;
         }
+        .hud-stat-item .share-status {
+            color: var(--neon-green);
+        }
 
         /* ============================================================
            MODAL
@@ -839,8 +914,10 @@
             background: var(--bg-surface);
             border: 1px solid var(--neon-cyan);
             box-shadow: 0 0 50px rgba(0, 242, 254, 0.1);
-            width: 460px;
+            width: 480px;
             max-width: 90vw;
+            max-height: 80vh;
+            overflow-y: auto;
             padding: 32px;
             border-radius: var(--radius-lg);
             transform: scale(0.9) translateY(20px);
@@ -864,12 +941,13 @@
             font-size: 0.9rem;
             color: var(--text-secondary);
             line-height: 1.6;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
         .modal-actions {
             display: flex;
             justify-content: flex-end;
             gap: 12px;
+            margin-top: 16px;
         }
 
         .btn-secondary {
@@ -917,6 +995,20 @@
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 0 25px rgba(0, 242, 254, 0.3);
+        }
+        .btn-success {
+            background: rgba(0, 255, 136, 0.15);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 8px 20px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            transition: var(--transition-smooth);
+        }
+        .btn-success:hover {
+            background: rgba(0, 255, 136, 0.25);
         }
 
         /* ============================================================
@@ -1006,7 +1098,8 @@
             .sidebar .folder-filter-bar,
             .sidebar .note-card-snippet,
             .sidebar .note-card-meta,
-            .sidebar .note-card-title {
+            .sidebar .note-card-title,
+            .sidebar .tag-cloud {
                 display: none;
             }
             .sidebar .action-btn-main {
@@ -1046,6 +1139,12 @@
                 top: 40px;
                 width: 95vw;
             }
+            .share-bar {
+                flex-wrap: wrap;
+            }
+            .share-bar .share-link {
+                min-width: 100px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1066,20 +1165,6 @@
             .sidebar-toggle {
                 display: none;
             }
-        }
-
-        /* ============================================================
-           LOADING SKELETON
-           ============================================================ */
-        .skeleton {
-            background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-card-hover) 50%, var(--bg-card) 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            border-radius: var(--radius-sm);
-        }
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
         }
 
         /* ============================================================
@@ -1109,14 +1194,111 @@
             backdrop-filter: blur(12px);
             animation: toastIn 0.3s ease-out;
             pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         .toast.success { border-color: var(--neon-green); color: var(--neon-green); }
         .toast.error { border-color: #ff4757; color: #ff4757; }
         .toast.info { border-color: var(--neon-cyan); color: var(--neon-cyan); }
+        .toast.warning { border-color: var(--neon-orange); color: var(--neon-orange); }
 
         @keyframes toastIn {
             from { opacity: 0; transform: translateY(20px) scale(0.95); }
             to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* ============================================================
+           SHARE OVERLAY (embedded viewer)
+           ============================================================ */
+        .share-viewer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: var(--bg-modal);
+            backdrop-filter: blur(16px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition-smooth);
+        }
+        .share-viewer-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .share-viewer {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glow);
+            border-radius: var(--radius-lg);
+            max-width: 800px;
+            width: 90vw;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 40px;
+            box-shadow: 0 0 60px rgba(0, 242, 254, 0.08);
+            transform: scale(0.95) translateY(20px);
+            transition: var(--transition-bounce);
+        }
+        .share-viewer-overlay.active .share-viewer {
+            transform: scale(1) translateY(0);
+        }
+        .share-viewer .share-close {
+            float: right;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+        .share-viewer .share-close:hover {
+            color: var(--text-primary);
+        }
+        .share-viewer .viewer-title {
+            font-family: var(--font-cinzel);
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        .share-viewer .viewer-meta {
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .share-viewer .viewer-content {
+            line-height: 1.8;
+            color: #d1d5db;
+        }
+        .share-viewer .viewer-content p { margin-bottom: 1.2em; }
+        .share-viewer .viewer-content h2 {
+            font-family: var(--font-cinzel);
+            color: var(--text-primary);
+            border-left: 3px solid var(--neon-cyan);
+            padding-left: 14px;
+            margin: 1.5em 0 0.5em 0;
+        }
+        .share-viewer .viewer-content blockquote {
+            border-left: 3px solid var(--neon-purple);
+            padding-left: 20px;
+            color: #c084fc;
+            font-style: italic;
+        }
+        .share-viewer .viewer-content pre {
+            background: rgba(0,0,0,0.4);
+            padding: 16px;
+            border-radius: var(--radius-sm);
+            overflow-x: auto;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--neon-cyan);
         }
     </style>
 </head>
@@ -1138,6 +1320,20 @@
     <div class="command-palette" id="commandPalette">
         <input type="text" id="commandInput" placeholder="🔮 Search commands & notes..." autofocus>
         <div class="command-results" id="commandResults"></div>
+    </div>
+
+    <!-- ============================================================
+         SHARE VIEWER (for viewing shared notes)
+         ============================================================ -->
+    <div class="share-viewer-overlay" id="shareViewer">
+        <div class="share-viewer">
+            <button class="share-close" id="shareViewerClose">✕</button>
+            <div id="shareViewerContent">
+                <div class="viewer-title" id="viewerTitle">Loading...</div>
+                <div class="viewer-meta" id="viewerMeta"></div>
+                <div class="viewer-content" id="viewerBody"></div>
+            </div>
+        </div>
     </div>
 
     <!-- ============================================================
@@ -1204,6 +1400,10 @@
                 </div>
 
                 <div class="editor-actions">
+                    <button class="icon-btn" id="shareBtn" title="Share Note">
+                        <i class="fa-solid fa-share-nodes"></i>
+                        <span class="tooltip">Share (⌘⇧S)</span>
+                    </button>
                     <button class="icon-btn" id="focusModeBtn" title="Focus Mode">
                         <i class="fa-solid fa-expand"></i>
                         <span class="tooltip">Focus Mode</span>
@@ -1232,6 +1432,15 @@
 
                 <input type="text" class="title-input" id="noteTitle" placeholder="Record Objective / Title...">
 
+                <!-- Share Bar - visible when shared -->
+                <div class="share-bar" id="shareBar" style="display:none;">
+                    <i class="fa-solid fa-link" style="color:var(--neon-green);"></i>
+                    <span>Shared link:</span>
+                    <span class="share-link" id="shareLinkDisplay">loading...</span>
+                    <button class="copy-btn" id="copyShareLink">Copy</button>
+                    <button class="unshare-btn" id="unshareBtn">Unshare</button>
+                </div>
+
                 <div class="formatting-toolbar" id="formattingToolbar">
                     <button class="tool-btn" data-command="bold" title="Bold"><i class="fa-solid fa-bold"></i></button>
                     <button class="tool-btn" data-command="italic" title="Italic"><i class="fa-solid fa-italic"></i></button>
@@ -1256,7 +1465,7 @@
                 <div class="hud-stat-item">WORDS: <span id="wordCount">0</span></div>
                 <div class="hud-stat-item">CHARS: <span id="charCount">0</span></div>
                 <div class="hud-stat-item">ID: <span id="activeNoteId">#0000</span></div>
-                <div class="hud-stat-item">V: <span id="versionCount">1</span></div>
+                <div class="hud-stat-item">SHARE: <span id="shareStatus" class="share-status">🔒</span></div>
             </div>
         </main>
     </div>
@@ -1281,11 +1490,40 @@
     </div>
 
     <!-- ============================================================
+         SHARE MODAL
+         ============================================================ -->
+    <div class="modal-overlay" id="shareModal">
+        <div class="cyber-modal">
+            <div class="modal-title">
+                <i class="fa-solid fa-share-nodes"></i>
+                <span>SHARE NEURAL NODE</span>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom:12px;">Share this note with the world. Anyone with the link can view it.</p>
+                <div style="display:flex;gap:10px;align-items:center;background:rgba(0,0,0,0.3);padding:10px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);">
+                    <input type="text" id="shareLinkInput" readonly style="flex:1;background:transparent;border:none;color:var(--neon-cyan);font-family:var(--font-mono);font-size:0.8rem;outline:none;">
+                    <button class="btn-success" id="copyShareModalLink" style="padding:4px 14px;">Copy</button>
+                </div>
+                <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn-secondary" id="shareViaTwitter"><i class="fa-brands fa-twitter"></i> Twitter</button>
+                    <button class="btn-secondary" id="shareViaLinkedIn"><i class="fa-brands fa-linkedin"></i> LinkedIn</button>
+                    <button class="btn-secondary" id="shareViaEmail"><i class="fa-solid fa-envelope"></i> Email</button>
+                    <button class="btn-secondary" id="shareViaWhatsApp"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="closeShareModal">CLOSE</button>
+                <button class="btn-danger" id="unshareFromModal" style="background:rgba(255,71,87,0.1);">Unshare</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
          SCRIPTS
          ============================================================ -->
     <script>
         // ============================================================
-        // GOD TIER AETHER ENGINE
+        // AETHER GOD TIER - WITH SHARING
         // ============================================================
 
         (function() {
@@ -1294,10 +1532,12 @@
             // ------------------------------------------------------------
             // CONFIGURATION
             // ------------------------------------------------------------
-            const STORAGE_KEY = 'AETHER_GODTIER_DATA_V2';
+            const STORAGE_KEY = 'AETHER_GODTIER_DATA_V3';
+            const SHARE_STORAGE_KEY = 'AETHER_SHARED_NOTES';
             const MAX_VERSIONS = 20;
             const AUTO_SAVE_DELAY = 600;
-            const DEBOUNCE_DELAY = 100;
+            const SITE_URL = window.location.origin + window.location.pathname;
+            const SHARE_PARAM = 'shared';
 
             // ------------------------------------------------------------
             // STATE
@@ -1311,10 +1551,9 @@
                 isSidebarCollapsed: false,
                 isFocusMode: false,
                 isCommandPaletteOpen: false,
-                undoStack: [],
-                redoStack: [],
                 saveTimer: null,
-                versionMap: {}
+                versionMap: {},
+                sharedNotes: {} // noteId -> shareToken
             };
 
             // ------------------------------------------------------------
@@ -1342,13 +1581,28 @@
                 wordCount: $('#wordCount'),
                 charCount: $('#charCount'),
                 activeNoteId: $('#activeNoteId'),
-                versionCount: $('#versionCount'),
+                shareStatus: $('#shareStatus'),
                 deleteModal: $('#deleteModal'),
                 cancelDeleteBtn: $('#cancelDeleteBtn'),
                 confirmDeleteBtn: $('#confirmDeleteBtn'),
                 deleteNoteBtn: $('#deleteNoteBtn'),
                 exportBtn: $('#exportBtn'),
                 focusModeBtn: $('#focusModeBtn'),
+                shareBtn: $('#shareBtn'),
+                shareModal: $('#shareModal'),
+                shareLinkInput: $('#shareLinkInput'),
+                copyShareModalLink: $('#copyShareModalLink'),
+                closeShareModal: $('#closeShareModal'),
+                unshareFromModal: $('#unshareFromModal'),
+                shareBar: $('#shareBar'),
+                shareLinkDisplay: $('#shareLinkDisplay'),
+                copyShareLink: $('#copyShareLink'),
+                unshareBtn: $('#unshareBtn'),
+                shareViewer: $('#shareViewer'),
+                shareViewerClose: $('#shareViewerClose'),
+                viewerTitle: $('#viewerTitle'),
+                viewerMeta: $('#viewerMeta'),
+                viewerBody: $('#viewerBody'),
                 editorBody: $('#editorBody'),
                 commandPalette: $('#commandPalette'),
                 commandInput: $('#commandInput'),
@@ -1356,6 +1610,177 @@
                 toastContainer: $('#toastContainer'),
                 formattingToolbar: $('#formattingToolbar'),
             };
+
+            // ------------------------------------------------------------
+            // SHARING ENGINE
+            // ------------------------------------------------------------
+            function generateShareToken() {
+                return 'share_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 6);
+            }
+
+            function getShareUrl(noteId) {
+                const token = state.sharedNotes[noteId];
+                if (!token) return null;
+                return `${SITE_URL}?${SHARE_PARAM}=${token}`;
+            }
+
+            function shareNote(noteId) {
+                const note = state.notes.find(n => n.id === noteId);
+                if (!note) {
+                    toast('Note not found', 'error');
+                    return null;
+                }
+
+                // Generate token if not already shared
+                if (!state.sharedNotes[noteId]) {
+                    state.sharedNotes[noteId] = generateShareToken();
+                    saveState();
+                }
+
+                const url = getShareUrl(noteId);
+                if (url) {
+                    // Update UI
+                    updateShareUI(noteId);
+                    toast('Note shared! Link copied to clipboard', 'success');
+                    
+                    // Copy to clipboard
+                    navigator.clipboard?.writeText(url).catch(() => {});
+                    
+                    return url;
+                }
+                return null;
+            }
+
+            function unshareNote(noteId) {
+                if (state.sharedNotes[noteId]) {
+                    delete state.sharedNotes[noteId];
+                    saveState();
+                    updateShareUI(noteId);
+                    toast('Note unshared', 'info');
+                    
+                    // Hide share bar if current note
+                    if (state.currentId === noteId) {
+                        DOM.shareBar.style.display = 'none';
+                    }
+                    return true;
+                }
+                return false;
+            }
+
+            function isNoteShared(noteId) {
+                return !!state.sharedNotes[noteId];
+            }
+
+            function updateShareUI(noteId) {
+                const shared = isNoteShared(noteId);
+                const url = getShareUrl(noteId);
+                
+                // Update share status in HUD
+                DOM.shareStatus.textContent = shared ? '🌐' : '🔒';
+                DOM.shareStatus.style.color = shared ? 'var(--neon-green)' : 'var(--text-muted)';
+                
+                // Update share button
+                DOM.shareBtn.classList.toggle('share-active', shared);
+                
+                // Update share bar
+                if (shared && url && state.currentId === noteId) {
+                    DOM.shareBar.style.display = 'flex';
+                    DOM.shareLinkDisplay.textContent = url;
+                } else {
+                    DOM.shareBar.style.display = 'none';
+                }
+                
+                // Update note card indicators
+                document.querySelectorAll('.note-card').forEach(card => {
+                    const id = card.dataset.noteId;
+                    if (id && isNoteShared(id)) {
+                        card.classList.add('shared');
+                    } else {
+                        card.classList.remove('shared');
+                    }
+                });
+            }
+
+            // ------------------------------------------------------------
+            // SHARE VIEWER - load shared note from URL
+            // ------------------------------------------------------------
+            function loadSharedNoteFromURL() {
+                const params = new URLSearchParams(window.location.search);
+                const token = params.get(SHARE_PARAM);
+                
+                if (!token) return false;
+                
+                // Find note by share token
+                let foundNote = null;
+                let foundId = null;
+                
+                for (const [noteId, shareToken] of Object.entries(state.sharedNotes)) {
+                    if (shareToken === token) {
+                        const note = state.notes.find(n => n.id === noteId);
+                        if (note) {
+                            foundNote = note;
+                            foundId = noteId;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!foundNote) {
+                    toast('Shared note not found or has been unshared', 'error');
+                    // Remove param from URL
+                    const url = new URL(window.location);
+                    url.searchParams.delete(SHARE_PARAM);
+                    window.history.replaceState({}, '', url.toString());
+                    return false;
+                }
+                
+                // Display in viewer
+                DOM.viewerTitle.textContent = foundNote.title;
+                DOM.viewerMeta.innerHTML = `
+                    <strong>Category:</strong> ${foundNote.category || 'GENERAL'} &bull;
+                    <strong>Tags:</strong> ${foundNote.tags || 'none'} &bull;
+                    <strong>Shared:</strong> ${new Date(foundNote.updatedAt).toLocaleString()}
+                `;
+                DOM.viewerBody.innerHTML = foundNote.content;
+                
+                DOM.shareViewer.classList.add('active');
+                
+                // Clean URL
+                const url = new URL(window.location);
+                url.searchParams.delete(SHARE_PARAM);
+                window.history.replaceState({}, '', url.toString());
+                
+                return true;
+            }
+
+            // ------------------------------------------------------------
+            // SHARING MODAL
+            // ------------------------------------------------------------
+            function openShareModal() {
+                const note = getCurrentNote();
+                if (!note) {
+                    toast('No note to share', 'error');
+                    return;
+                }
+                
+                // Ensure note is shared
+                if (!state.sharedNotes[note.id]) {
+                    state.sharedNotes[note.id] = generateShareToken();
+                    saveState();
+                }
+                
+                const url = getShareUrl(note.id);
+                if (url) {
+                    DOM.shareLinkInput.value = url;
+                    DOM.shareModal.classList.add('active');
+                    DOM.shareLinkInput.select();
+                    updateShareUI(note.id);
+                }
+            }
+
+            function closeShareModal() {
+                DOM.shareModal.classList.remove('active');
+            }
 
             // ------------------------------------------------------------
             // INITIALIZATION
@@ -1371,8 +1796,13 @@
                     state.currentId = state.notes[0].id;
                 }
 
-                renderNotesList();
-                loadActiveNote();
+                // Check for shared note in URL first
+                const hasShared = loadSharedNoteFromURL();
+                if (!hasShared) {
+                    renderNotesList();
+                    loadActiveNote();
+                }
+                
                 renderTagCloud();
                 applyTheme();
                 setupEventListeners();
@@ -1380,18 +1810,19 @@
                 setupKeyboardShortcuts();
                 setupCommandPalette();
                 updateHUD();
+                updateShareUI(state.currentId);
 
                 // Set initial sidebar state
                 if (state.isSidebarCollapsed) {
                     DOM.sidebar.classList.add('collapsed');
                 }
 
-                console.log('⚡ AETHER GOD TIER initialized');
+                console.log('⚡ AETHER GOD TIER with Sharing initialized');
                 toast('System online', 'success');
             }
 
             // ------------------------------------------------------------
-            // SAMPLE DATA
+            // SAMPLE DATA with sharing examples
             // ------------------------------------------------------------
             function createSampleNotes() {
                 state.notes = [
@@ -1446,6 +1877,10 @@
                     }
                 ];
                 state.currentId = state.notes[0].id;
+                
+                // Share one note by default for demo
+                state.sharedNotes[state.notes[0].id] = generateShareToken();
+                
                 saveState();
             }
 
@@ -1463,8 +1898,8 @@
                         state.theme = parsed.theme || 'cyber';
                         state.isSidebarCollapsed = parsed.isSidebarCollapsed || false;
                         state.versionMap = parsed.versionMap || {};
+                        state.sharedNotes = parsed.sharedNotes || {};
                         
-                        // Ensure all notes have version property
                         state.notes.forEach(n => {
                             if (!n.version) n.version = 1;
                         });
@@ -1482,7 +1917,8 @@
                         filter: state.filter,
                         theme: state.theme,
                         isSidebarCollapsed: state.isSidebarCollapsed,
-                        versionMap: state.versionMap
+                        versionMap: state.versionMap,
+                        sharedNotes: state.sharedNotes
                     };
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
                 } catch (e) {
@@ -1491,14 +1927,10 @@
             }
 
             // ------------------------------------------------------------
-            // NOTE CRUD
+            // NOTE CRUD (with sharing cleanup)
             // ------------------------------------------------------------
             function getCurrentNote() {
                 return state.notes.find(n => n.id === state.currentId);
-            }
-
-            function getNoteIndex(id) {
-                return state.notes.findIndex(n => n.id === id);
             }
 
             function createNewNote() {
@@ -1520,6 +1952,7 @@
                 loadActiveNote();
                 renderTagCloud();
                 updateHUD();
+                updateShareUI(newId);
                 toast('New note initialized', 'success');
                 focusEditor();
             }
@@ -1531,17 +1964,15 @@
                 const title = DOM.noteTitle.value.trim() || 'Untitled Neural Node';
                 const content = DOM.noteBody.innerHTML;
 
-                // Check if content actually changed
-                if (note.title === title && note.content === content && note.category === DOM.noteCategory.value && note.tags === DOM.noteTags.value) {
-                    return; // No change
+                if (note.title === title && note.content === content && 
+                    note.category === DOM.noteCategory.value && note.tags === DOM.noteTags.value) {
+                    return;
                 }
 
-                // Save version history
                 if (!state.versionMap[note.id]) {
                     state.versionMap[note.id] = [];
                 }
                 
-                // Only save version if content changed significantly
                 if (note.content !== content) {
                     state.versionMap[note.id].push({
                         content: note.content,
@@ -1549,7 +1980,6 @@
                         timestamp: note.updatedAt
                     });
                     
-                    // Trim versions
                     if (state.versionMap[note.id].length > MAX_VERSIONS) {
                         state.versionMap[note.id] = state.versionMap[note.id].slice(-MAX_VERSIONS);
                     }
@@ -1574,6 +2004,11 @@
                 const note = getCurrentNote();
                 if (!note) return;
 
+                // Remove any share tokens
+                if (state.sharedNotes[note.id]) {
+                    delete state.sharedNotes[note.id];
+                }
+
                 state.notes = state.notes.filter(n => n.id !== state.currentId);
                 
                 if (state.notes.length > 0) {
@@ -1588,6 +2023,7 @@
                 loadActiveNote();
                 renderTagCloud();
                 updateHUD();
+                updateShareUI(state.currentId);
                 toast('Note purged', 'info');
             }
 
@@ -1599,7 +2035,6 @@
                     DOM.noteTags.value = '';
                     DOM.noteBody.innerHTML = '';
                     DOM.activeNoteId.innerText = '#----';
-                    DOM.versionCount.innerText = '0';
                     return;
                 }
 
@@ -1608,9 +2043,9 @@
                 DOM.noteTags.value = note.tags || '';
                 DOM.noteBody.innerHTML = note.content || '<p>Begin your neural log...</p>';
                 DOM.activeNoteId.innerText = '#' + note.id.replace('note-', '').substr(0, 8);
-                DOM.versionCount.innerText = note.version || 1;
                 
                 updateHUD();
+                updateShareUI(note.id);
             }
 
             // ------------------------------------------------------------
@@ -1641,7 +2076,9 @@
 
                 filtered.forEach(note => {
                     const card = document.createElement('div');
-                    card.className = `note-card ${note.id === state.currentId ? 'active' : ''}`;
+                    const isShared = isNoteShared(note.id);
+                    card.className = `note-card ${note.id === state.currentId ? 'active' : ''} ${isShared ? 'shared' : ''}`;
+                    card.dataset.noteId = note.id;
                     
                     const temp = document.createElement('div');
                     temp.innerHTML = note.content;
@@ -1651,7 +2088,10 @@
                     const dateStr = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
                     
                     card.innerHTML = `
-                        <div class="note-card-title">${escapeHtml(note.title)}</div>
+                        <div class="note-card-title">
+                            ${escapeHtml(note.title)}
+                            ${isShared ? '<span class="share-icon" style="opacity:1;color:var(--neon-green);font-size:0.7rem;margin-left:6px;"><i class="fa-solid fa-share-nodes"></i></span>' : ''}
+                        </div>
                         <div class="note-card-snippet">${escapeHtml(snippet)}</div>
                         <div class="note-card-meta">
                             <span>${dateStr}</span>
@@ -1660,17 +2100,12 @@
                     `;
 
                     card.addEventListener('click', () => {
-                        // Save current note before switching
                         saveCurrentNote();
                         state.currentId = note.id;
                         renderNotesList();
                         loadActiveNote();
                         updateHUD();
-                    });
-
-                    card.addEventListener('dblclick', () => {
-                        // Quick focus on editor
-                        DOM.noteBody.focus();
+                        updateShareUI(note.id);
                     });
 
                     DOM.notesList.appendChild(card);
@@ -1726,6 +2161,8 @@
                     DOM.statusDot.classList.add('saving');
                 } else if (icon === 'error') {
                     DOM.statusDot.classList.add('error');
+                } else if (icon === 'shared') {
+                    DOM.statusDot.classList.add('shared');
                 }
             }
 
@@ -1814,10 +2251,21 @@
                         code { font-family: monospace; }
                         hr { border: none; border-top: 1px solid #2a2e34; margin: 30px 0; }
                         .footer { color: #484f58; font-size: 0.8rem; margin-top: 40px; text-align: center; }
+                        .share-badge { 
+                            display: inline-block; 
+                            background: rgba(0,255,136,0.1); 
+                            border: 1px solid #00ff88;
+                            color: #00ff88;
+                            padding: 2px 12px;
+                            border-radius: 12px;
+                            font-size: 0.7rem;
+                            font-family: monospace;
+                            margin-left: 10px;
+                        }
                     </style>
                 </head>
                 <body>
-                    <h1>${escapeHtml(note.title)}</h1>
+                    <h1>${escapeHtml(note.title)} ${isNoteShared(note.id) ? '<span class="share-badge">🌐 SHARED</span>' : ''}</h1>
                     <div class="meta">
                         <strong>Category:</strong> ${escapeHtml(note.category)} &bull; 
                         <strong>Tags:</strong> ${escapeHtml(note.tags)} &bull;
@@ -1868,7 +2316,6 @@
 
             function focusEditor() {
                 DOM.noteBody.focus();
-                // Place cursor at end
                 const range = document.createRange();
                 range.selectNodeContents(DOM.noteBody);
                 range.collapse(false);
@@ -1878,14 +2325,22 @@
             }
 
             // ------------------------------------------------------------
+            // SHORTCUTS HELPERS
+            // ------------------------------------------------------------
+            function getNoteIdFromShareToken(token) {
+                for (const [id, t] of Object.entries(state.sharedNotes)) {
+                    if (t === token) return id;
+                }
+                return null;
+            }
+
+            // ------------------------------------------------------------
             // KEYBOARD SHORTCUTS
             // ------------------------------------------------------------
             function setupKeyboardShortcuts() {
                 document.addEventListener('keydown', (e) => {
                     const ctrl = e.ctrlKey || e.metaKey;
                     const shift = e.shiftKey;
-
-                    // Don't trigger shortcuts when typing in input fields (except specific ones)
                     const activeTag = document.activeElement?.tagName || '';
                     const isInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag);
                     const isContentEditable = document.activeElement?.contentEditable === 'true';
@@ -1912,7 +2367,28 @@
                         return;
                     }
 
-                    // Delete: Ctrl+Delete or Ctrl+Backspace
+                    // Share: Ctrl+Shift+S
+                    if (ctrl && shift && e.key === 'S') {
+                        e.preventDefault();
+                        const note = getCurrentNote();
+                        if (note) {
+                            if (isNoteShared(note.id)) {
+                                const url = getShareUrl(note.id);
+                                if (url) {
+                                    navigator.clipboard?.writeText(url).then(() => {
+                                        toast('Share link copied!', 'success');
+                                    }).catch(() => {
+                                        openShareModal();
+                                    });
+                                }
+                            } else {
+                                shareNote(note.id);
+                            }
+                        }
+                        return;
+                    }
+
+                    // Delete: Ctrl+Delete
                     if (ctrl && (e.key === 'Delete' || e.key === 'Backspace')) {
                         e.preventDefault();
                         openDeleteModal();
@@ -1941,7 +2417,7 @@
                         return;
                     }
 
-                    // Escape: Close modals and command palette
+                    // Escape
                     if (e.key === 'Escape') {
                         if (DOM.deleteModal.classList.contains('active')) {
                             closeDeleteModal();
@@ -1949,26 +2425,16 @@
                         if (DOM.commandPalette.classList.contains('active')) {
                             closeCommandPalette();
                         }
+                        if (DOM.shareModal.classList.contains('active')) {
+                            closeShareModal();
+                        }
+                        if (DOM.shareViewer.classList.contains('active')) {
+                            DOM.shareViewer.classList.remove('active');
+                        }
                         return;
                     }
 
-                    // Undo: Ctrl+Z (only in editor)
-                    if (ctrl && e.key === 'z' && !e.shiftKey && isContentEditable) {
-                        e.preventDefault();
-                        document.execCommand('undo');
-                        triggerAutoSave();
-                        return;
-                    }
-
-                    // Redo: Ctrl+Shift+Z or Ctrl+Y
-                    if ((ctrl && e.key === 'z' && shift) || (ctrl && e.key === 'y')) {
-                        e.preventDefault();
-                        document.execCommand('redo');
-                        triggerAutoSave();
-                        return;
-                    }
-
-                    // Navigation: Alt+Left/Right for previous/next note
+                    // Navigation: Alt+Left/Right
                     if (!isInput && !isContentEditable && e.altKey) {
                         if (e.key === 'ArrowLeft') {
                             e.preventDefault();
@@ -1990,6 +2456,7 @@
                 renderNotesList();
                 loadActiveNote();
                 updateHUD();
+                updateShareUI(state.currentId);
             }
 
             // ------------------------------------------------------------
@@ -1999,6 +2466,7 @@
                 const commands = [
                     { id: 'new', label: 'New Note', icon: 'fa-plus', shortcut: '⌘N', action: createNewNote },
                     { id: 'save', label: 'Save Note', icon: 'fa-floppy-disk', shortcut: '⌘S', action: () => { saveCurrentNote(); toast('Saved', 'success'); } },
+                    { id: 'share', label: 'Share Note', icon: 'fa-share-nodes', shortcut: '⌘⇧S', action: openShareModal },
                     { id: 'export', label: 'Export Note', icon: 'fa-download', shortcut: '⌘E', action: exportCurrentNote },
                     { id: 'delete', label: 'Delete Note', icon: 'fa-trash', shortcut: '⌘⌫', action: openDeleteModal },
                     { id: 'focus', label: 'Toggle Focus Mode', icon: 'fa-expand', shortcut: '⌘⇧F', action: toggleFocusMode },
@@ -2012,13 +2480,12 @@
                         c.id.includes(query)
                     );
 
-                    // Add notes to results
                     const noteResults = state.notes
                         .filter(n => n.title.toLowerCase().includes(query))
                         .slice(0, 5)
                         .map(n => ({
                             id: 'note-' + n.id,
-                            label: `📄 ${n.title}`,
+                            label: `📄 ${n.title} ${isNoteShared(n.id) ? '🌐' : ''}`,
                             icon: 'fa-file-lines',
                             shortcut: '',
                             action: () => {
@@ -2026,6 +2493,7 @@
                                 renderNotesList();
                                 loadActiveNote();
                                 updateHUD();
+                                updateShareUI(n.id);
                                 closeCommandPalette();
                             }
                         }));
@@ -2097,7 +2565,6 @@
                 DOM.commandInput.value = '';
                 DOM.commandInput.focus();
                 renderCommandResults([]);
-                // Show default commands
                 setTimeout(() => {
                     DOM.commandInput.dispatchEvent(new Event('input'));
                 }, 50);
@@ -2123,21 +2590,16 @@
                             if (url) {
                                 document.execCommand(command, false, url);
                             }
-                        } else if (command === 'formatBlock') {
-                            if (value === 'PRE') {
-                                // Wrap in pre/code block
-                                const selection = window.getSelection();
-                                if (!selection.rangeCount) return;
-                                const range = selection.getRangeAt(0);
-                                const content = range.extractContents();
-                                const pre = document.createElement('pre');
-                                const code = document.createElement('code');
-                                code.appendChild(content);
-                                pre.appendChild(code);
-                                range.insertNode(pre);
-                            } else {
-                                document.execCommand(command, false, value);
-                            }
+                        } else if (command === 'formatBlock' && value === 'PRE') {
+                            const selection = window.getSelection();
+                            if (!selection.rangeCount) return;
+                            const range = selection.getRangeAt(0);
+                            const content = range.extractContents();
+                            const pre = document.createElement('pre');
+                            const code = document.createElement('code');
+                            code.appendChild(content);
+                            pre.appendChild(code);
+                            range.insertNode(pre);
                         } else {
                             document.execCommand(command, false, value);
                         }
@@ -2147,7 +2609,6 @@
                     });
                 });
 
-                // Track active formatting state
                 DOM.noteBody.addEventListener('mouseup', updateFormattingState);
                 DOM.noteBody.addEventListener('keyup', updateFormattingState);
             }
@@ -2163,10 +2624,49 @@
             }
 
             // ------------------------------------------------------------
+            // SHARING: Social Media
+            // ------------------------------------------------------------
+            function shareViaSocial(platform) {
+                const note = getCurrentNote();
+                if (!note) return;
+                
+                // Ensure shared
+                if (!state.sharedNotes[note.id]) {
+                    shareNote(note.id);
+                }
+                
+                const url = getShareUrl(note.id);
+                if (!url) return;
+                
+                const text = encodeURIComponent(`📝 ${note.title}\n\n${note.content.substring(0, 200)}...`);
+                const shareUrl = encodeURIComponent(url);
+                
+                let socialUrl = '';
+                switch(platform) {
+                    case 'twitter':
+                        socialUrl = `https://twitter.com/intent/tweet?text=${text}&url=${shareUrl}`;
+                        break;
+                    case 'linkedin':
+                        socialUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`;
+                        break;
+                    case 'whatsapp':
+                        socialUrl = `https://api.whatsapp.com/send?text=${text}%20${shareUrl}`;
+                        break;
+                    case 'email':
+                        socialUrl = `mailto:?subject=${encodeURIComponent(note.title)}&body=${text}%0A%0A${shareUrl}`;
+                        break;
+                }
+                
+                if (socialUrl) {
+                    window.open(socialUrl, '_blank', 'width=600,height=500');
+                }
+            }
+
+            // ------------------------------------------------------------
             // EVENT LISTENERS
             // ------------------------------------------------------------
             function setupEventListeners() {
-                // Note title, category, tags changes
+                // Auto-save triggers
                 DOM.noteTitle.addEventListener('input', triggerAutoSave);
                 DOM.noteCategory.addEventListener('change', triggerAutoSave);
                 DOM.noteTags.addEventListener('input', triggerAutoSave);
@@ -2216,56 +2716,108 @@
                     saveState();
                 });
 
-                // Brand logo click - go to first note
+                // Brand logo - go to first note
                 DOM.brandLogo.addEventListener('click', () => {
                     if (state.notes.length > 0) {
                         state.currentId = state.notes[0].id;
                         renderNotesList();
                         loadActiveNote();
                         updateHUD();
+                        updateShareUI(state.currentId);
                     }
                 });
 
-                // Delete modal keyboard support
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape' && DOM.deleteModal.classList.contains('active')) {
-                        closeDeleteModal();
+                // --- SHARING EVENTS ---
+                
+                // Share button
+                DOM.shareBtn.addEventListener('click', () => {
+                    const note = getCurrentNote();
+                    if (!note) {
+                        toast('No note to share', 'error');
+                        return;
                     }
-                    if (e.key === 'Enter' && DOM.deleteModal.classList.contains('active')) {
-                        deleteCurrentNote();
-                        closeDeleteModal();
+                    openShareModal();
+                });
+
+                // Share modal actions
+                DOM.closeShareModal.addEventListener('click', closeShareModal);
+                DOM.shareModal.addEventListener('click', (e) => {
+                    if (e.target === DOM.shareModal) closeShareModal();
+                });
+
+                // Copy share link from modal
+                DOM.copyShareModalLink.addEventListener('click', () => {
+                    DOM.shareLinkInput.select();
+                    navigator.clipboard?.writeText(DOM.shareLinkInput.value).then(() => {
+                        toast('Link copied!', 'success');
+                    }).catch(() => {
+                        document.execCommand('copy');
+                        toast('Link copied!', 'success');
+                    });
+                });
+
+                // Copy share link from bar
+                DOM.copyShareLink.addEventListener('click', () => {
+                    const url = DOM.shareLinkDisplay.textContent;
+                    navigator.clipboard?.writeText(url).then(() => {
+                        toast('Link copied!', 'success');
+                    }).catch(() => {
+                        // Fallback
+                        const input = document.createElement('input');
+                        input.value = url;
+                        document.body.appendChild(input);
+                        input.select();
+                        document.execCommand('copy');
+                        input.remove();
+                        toast('Link copied!', 'success');
+                    });
+                });
+
+                // Unshare from bar
+                DOM.unshareBtn.addEventListener('click', () => {
+                    if (state.currentId) {
+                        unshareNote(state.currentId);
                     }
                 });
 
-                // Close modals on backdrop click
-                DOM.deleteModal.addEventListener('click', (e) => {
-                    if (e.target === DOM.deleteModal) closeDeleteModal();
-                });
-
-                // Click outside command palette to close
-                document.addEventListener('click', (e) => {
-                    if (DOM.commandPalette.classList.contains('active') && 
-                        !DOM.commandPalette.contains(e.target) &&
-                        !e.target.closest('.icon-btn')) {
-                        closeCommandPalette();
+                // Unshare from modal
+                DOM.unshareFromModal.addEventListener('click', () => {
+                    if (state.currentId) {
+                        unshareNote(state.currentId);
+                        closeShareModal();
                     }
                 });
 
-                // Window before unload - save
+                // Social sharing buttons
+                document.getElementById('shareViaTwitter').addEventListener('click', () => shareViaSocial('twitter'));
+                document.getElementById('shareViaLinkedIn').addEventListener('click', () => shareViaSocial('linkedin'));
+                document.getElementById('shareViaWhatsApp').addEventListener('click', () => shareViaSocial('whatsapp'));
+                document.getElementById('shareViaEmail').addEventListener('click', () => shareViaSocial('email'));
+
+                // Share viewer close
+                DOM.shareViewerClose.addEventListener('click', () => {
+                    DOM.shareViewer.classList.remove('active');
+                });
+                DOM.shareViewer.addEventListener('click', (e) => {
+                    if (e.target === DOM.shareViewer) {
+                        DOM.shareViewer.classList.remove('active');
+                    }
+                });
+
+                // Close modals on Escape (handled in keyboard shortcuts)
+
+                // Window before unload
                 window.addEventListener('beforeunload', () => {
                     saveCurrentNote();
                 });
 
                 // Handle paste for rich content
-                DOM.noteBody.addEventListener('paste', (e) => {
-                    // Allow paste but trigger save
+                DOM.noteBody.addEventListener('paste', () => {
                     setTimeout(triggerAutoSave, 50);
                 });
 
                 // Click on note body to focus
-                DOM.noteBody.addEventListener('click', () => {
-                    // Ensure we're focused
-                });
+                DOM.noteBody.addEventListener('click', () => {});
             }
 
             // ------------------------------------------------------------
@@ -2282,7 +2834,6 @@
             // ------------------------------------------------------------
             // BOOT
             // ------------------------------------------------------------
-            // Wait for DOM fully loaded
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', init);
             } else {
@@ -2298,6 +2849,10 @@
                 save: saveCurrentNote,
                 export: exportCurrentNote,
                 delete: deleteCurrentNote,
+                share: shareNote,
+                unshare: unshareNote,
+                isShared: isNoteShared,
+                getShareUrl: getShareUrl,
                 toast
             };
 
